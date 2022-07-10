@@ -3,7 +3,7 @@ const express = require('express')
 const { Client } = require('pg')
 require('dotenv').config()
 
-let ssl = null;
+let ssl = true;
 if (process.env.NODE_ENV === 'development') {
 	ssl = { rejectUnauthorized: false };
 }
