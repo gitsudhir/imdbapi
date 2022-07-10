@@ -2,7 +2,7 @@ const pgp = require('pg-promise')(/* options */)
 const express = require('express')
 const { Client } = require('pg')
 require('dotenv').config()
-
+const cors = require('cors');
 let ssl = true;
 if (process.env.NODE_ENV === 'development') {
 	ssl = { rejectUnauthorized: false };
@@ -13,8 +13,8 @@ const config = {
 	ssl: ssl
 };
 const app = express()
-const port = process.env.PORT || 3000
-
+const port = process.env.PORT || 3001
+app.use(cors());
 app.get('/', (req, res) => {
 	res.send('Hello World by sudhir kumar!')
 })
