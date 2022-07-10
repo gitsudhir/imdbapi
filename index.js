@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'development') {
 	ssl = { rejectUnauthorized: false };
 }
 const config = {
-	connectionString: process.env.DATABASE_URL_DB,
+	connectionString: process.env.DATABASE_URL,
 	max: 30,
 	ssl: ssl
 };
@@ -22,7 +22,8 @@ app.get('/api', (req, res) => {
 
 	const db = pgp(config);
 
-	db.many('SELECT * FROM todolist')
+	
+	db.any('SELECT * FROM information_schema.tables;')
 		.then((data) => {
 			console.log('DATA:', data)
 			res.send(JSON.stringify(data));
