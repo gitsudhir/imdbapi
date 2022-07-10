@@ -26,7 +26,7 @@ app.get('/api', (req, res) => {
 	db.any('SELECT * FROM information_schema.tables;')
 		.then((data) => {
 			console.log('DATA:', data)
-			res.send(JSON.stringify(data));
+			res.json((data));
 		})
 		.catch((error) => {
 			console.log('ERROR:', error)
