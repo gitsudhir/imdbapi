@@ -76,6 +76,21 @@ app.get('/api/genres', validator.query(querySchema), (req, res) => {
 		})
 
 })
+const paramsSchema = Joi.object({
+	id: Joi.number().required()
+});
+app.get('/api/reviews/:id', validator.params(paramsSchema), (req, res) => {
+	const query = `select review from movie_reviews where movie_id = ${req.params.id};`
+	db.any(query)
+		.then((data) => {
+			res.json((data));
+		})
+		.catch((error) => {
+			console.log('ERROR:', error)
+			res.status(500).send('Something broke!')
+		})
+
+})
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`)
