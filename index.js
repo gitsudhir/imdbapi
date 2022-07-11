@@ -5,7 +5,7 @@ require('dotenv').config()
 const cors = require('cors');
 const helmet = require("helmet");
 const morgan = require('morgan');
-const Joi = require('joi')
+const Joi = require('joi').extend(require('@joi/date'));
 const validator = require('express-joi-validation').createValidator({})
 
 
@@ -54,9 +54,50 @@ app.get('/api', (req, res) => {
 		})
 
 })
-app.post('/api/create', (req, res) => {
-	console.log(req.body);
-	res.send("imok");
+const bodySchema = Joi.object({
+	name: Joi.string().alphanum().required(),
+	details: Joi.string().required(),
+	releaseDate: Joi.date().raw().required(),
+	imageUrl: Joi.string().required(),
+	genre: Joi.string().alphanum().required()
+});
+
+app.post('/api/create', validator.body(bodySchema), (req, res) => {
+	const query = `SELECT id,title FROM movie_genre WHERE title = '${req.body.genre}';`
+	db.one(query)
+		.then((genreData) => {
+			let {
+				name,
+				details,
+				releaseDate,
+				imageUrl,
+			} = req.body;
+
+			const query = `INSERT INTO  movie (name,details,release_date,image_url)values('${name}','${details}','${releaseDate}','${imageUrl}') RETURNING id;`
+			db.one(query)
+				.then((movieData) => {
+
+					const query = `INSERT INTO  movie_genre_map (movie_id,genre_id)values('${movieData.id}','${genreData.id}');`
+					db.any(query)
+						.then((movie_genre_map) => {
+							res.status(200).json({ status: "ok" })
+						})
+						.catch((error) => {
+							console.log('ERROR:', error)
+							res.status(500).send('Something broke!')
+						})
+				})
+				.catch((error) => {
+					console.log('ERROR:', error)
+					res.status(500).send('Something broke!')
+				})
+		})
+		.catch((error) => {
+			console.log('ERROR:', error)
+			res.status(500).send('Something broke!')
+		})
+	// res.send("imok");
+
 
 });
 
