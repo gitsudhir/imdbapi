@@ -147,6 +147,43 @@ app.post('/api/reviews/:id', validator.params(paramsSchema), validator.body(revi
 		})
 
 })
+const upvoteSchema = Joi.object({
+	id: Joi.number().required()
+});
+const upvoteBody = Joi.object({
+	upvote: Joi.number().required()
+});
+app.post('/api/upvote/:id', validator.params(upvoteSchema), validator.body(upvoteBody), (req, res) => {
+	// should check the id in available or not in db
+	const query = `UPDATE movie SET upvote = ${req.body.upvote} WHERE id = ${req.params.id};`
+	db.any(query)
+		.then((data) => {
+			res.status(200).json({ status: "ok" })
+
+		})
+		.catch((error) => {
+			console.log('ERROR:', error)
+			res.status(500).send('Something broke!')
+		})
+
+})
+const downvoteBody = Joi.object({
+	downvote: Joi.number().required()
+});
+app.post('/api/downvote/:id', validator.params(upvoteSchema), validator.body(downvoteBody), (req, res) => {
+	// should check the id in available or not in db
+	const query = `UPDATE movie SET downvote = ${req.body.downvote} WHERE id = ${req.params.id};`
+	db.any(query)
+		.then((data) => {
+			res.status(200).json({ status: "ok" })
+
+		})
+		.catch((error) => {
+			console.log('ERROR:', error)
+			res.status(500).send('Something broke!')
+		})
+
+})
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`)
