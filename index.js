@@ -132,6 +132,21 @@ app.get('/api/reviews/:id', validator.params(paramsSchema), (req, res) => {
 		})
 
 })
+const reviewSchema = Joi.object({
+	review: Joi.string().required()
+});
+app.post('/api/reviews/:id', validator.params(paramsSchema), validator.body(reviewSchema), (req, res) => {
+	const query = `INSERT INTO  movie_reviews( movie_id,review)values (${req.params.id},'${req.body.review}');`
+	db.any(query)
+		.then((data) => {
+			res.status(200).json((data));
+		})
+		.catch((error) => {
+			console.log('ERROR:', error)
+			res.status(500).send('Something broke!')
+		})
+
+})
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`)
