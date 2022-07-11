@@ -41,19 +41,7 @@ const db = pgp(config);
 app.get('/', (req, res) => {
 	res.send('Hello World by sudhir kumar!')
 })
-app.get('/api', (req, res) => {
 
-	db.any('SELECT * FROM information_schema.tables;')
-		.then((data) => {
-			// console.log('DATA:', data)
-			res.json((data));
-		})
-		.catch((error) => {
-			console.log('ERROR:', error)
-			res.status(500).send('Something broke!')
-		})
-
-})
 const bodySchema = Joi.object({
 	name: Joi.string().alphanum().required(),
 	details: Joi.string().required(),
@@ -100,6 +88,36 @@ app.post('/api/create', validator.body(bodySchema), (req, res) => {
 
 
 });
+app.get('/api/movie/list', (req, res) => {
+	const query = `SELECT movie.id, movie.name,movie_genre.title as genre FROM movie,movie_genre_map,movie_genre WHERE movie.id = movie_genre_map.movie_id AND movie_genre.id = movie_genre_map.genre_id;`
+	db.any(query)
+		.then((data) => {
+			res.json(data)
+		})
+		.catch((error) => {
+			console.log('ERROR:', error)
+			res.status(500).send('Something broke!')
+		})
+
+
+});
+const paramsSchema = Joi.object({
+	id: Joi.number().required()
+});
+
+app.get('/api/movie/:id', validator.params(paramsSchema), (req, res) => {
+	const query = `SELECT movie.id, movie.name,movie_genre.title as genre ,movie.details,movie.release_date as releaseDate FROM movie,movie_genre_map,movie_genre WHERE movie.id = movie_genre_map.movie_id AND movie_genre.id = movie_genre_map.genre_id AND  movie.id = ${req.params.id};`
+	db.any(query)
+		.then((data) => {
+			res.json(data)
+		})
+		.catch((error) => {
+			console.log('ERROR:', error)
+			res.status(500).send('Something broke!')
+		})
+
+
+});
 
 const querySchema = Joi.object({
 	title: Joi.string().alphanum().required()
@@ -117,9 +135,7 @@ app.get('/api/genres', validator.query(querySchema), (req, res) => {
 		})
 
 })
-const paramsSchema = Joi.object({
-	id: Joi.number().required()
-});
+
 app.get('/api/reviews/:id', validator.params(paramsSchema), (req, res) => {
 	const query = `select review from movie_reviews where movie_id = ${req.params.id};`
 	db.any(query)
